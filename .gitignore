@@ -1,0 +1,50 @@
+# Create comprehensive .gitignore
+cat > .gitignore << 'EOF'
+# Salesforce DX
+.sfdx/
+.localdevserver/
+.sf/
+.husky/
+
+# VS Code
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json
+
+# Illuminated Cloud (IntelliJ)
+IlluminatedCloud/
+.idea/
+*.iml
+
+# Logs
+logs
+*.log
+
+# Dependency directories
+node_modules/
+
+# Eslint cache
+.eslintcache
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# Package directories
+**/profiles/**
+!**/profiles/Admin.profile-meta.xml
+
+# LWC
+**/lwc/**/jest/
+**/lwc/**/__tests__/
+EOF

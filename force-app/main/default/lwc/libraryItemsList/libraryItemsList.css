@@ -1,0 +1,191 @@
+.slds-scrollable_x {
+    max-width: 100%;
+}
+
+.barcode-text {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 0.875rem;
+}
+
+.type-badge {
+    --slds-c-badge-color-background: #e0f3ff;
+    --slds-c-badge-text-color: #0176d3;
+}
+
+.status-available {
+    --slds-c-badge-color-background: #d9f7be;
+    --slds-c-badge-text-color: #389e0d;
+}
+
+.status-checked-out {
+    --slds-c-badge-color-background: #fff2e8;
+    --slds-c-badge-text-color: #d46b08;
+}
+
+.status-overdue {
+    --slds-c-badge-color-background: #fff2f0;
+    --slds-c-badge-text-color: #cf1322;
+    animation: pulse 2s infinite;
+}
+
+.status-maintenance {
+    --slds-c-badge-color-background: #fff1f0;
+    --slds-c-badge-text-color: #cf1322;
+}
+
+.status-lost {
+    --slds-c-badge-color-background: #f6f6f6;
+    --slds-c-badge-text-color: #666;
+}
+
+.status-retired {
+    --slds-c-badge-color-background: #f0f0f0;
+    --slds-c-badge-text-color: #999;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 0.5rem;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.stat-number.available {
+    color: #389e0d;
+}
+
+.stat-number.checked-out {
+    color: #d46b08;
+}
+
+.stat-number.overdue {
+    color: #cf1322;
+}
+
+.stat-number.maintenance {
+    color: #cf1322;
+}
+
+/* Pulse animation for overdue items */
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #666;
+    margin-top: 0.25rem;
+}
+
+/* Pagination Styles */
+.pagination-info {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.875rem;
+    color: #666;
+    background: #f3f3f3;
+    border: 1px solid #d8dde6;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+}
+
+.page-size-selector {
+    width: 80px;
+}
+
+.page-size-selector lightning-combobox {
+    min-width: 80px;
+}
+
+/* Ensure consistent button group styling */
+.slds-button-group .slds-button {
+    border-radius: 0;
+}
+
+.slds-button-group .slds-button:first-child {
+    border-top-left-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+}
+
+.slds-button-group .slds-button:last-child {
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+}
+
+/* Responsive pagination */
+@media (max-width: 768px) {
+    .slds-table {
+        font-size: 0.875rem;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+    }
+    
+    /* Stack pagination controls on mobile */
+    .pagination-controls-mobile {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .pagination-info {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+    
+    .page-size-selector {
+        width: 60px;
+    }
+    
+    /* Hide some pagination buttons on mobile */
+    @media (max-width: 480px) {
+        .pagination-first-last {
+            display: none;
+        }
+    }
+}
+
+/* Modal enhancements */
+.slds-modal__content p {
+    margin-bottom: 1rem;
+}
+
+.slds-modal__content p:last-child {
+    margin-bottom: 0;
+}
+
+/* Loading and empty state improvements */
+.slds-text-align_center .slds-spinner {
+    margin: 2rem auto;
+}
+
+/* Table improvements for better readability with pagination */
+.slds-table tbody tr:nth-child(even) {
+    background-color: #fafbfc;
+}
+
+.slds-table tbody tr:hover {
+    background-color: #f3f3f3;
+}
+
+/* Smooth transitions for pagination */
+.slds-table tbody {
+    transition: opacity 0.2s ease-in-out;
+}
+
+.slds-table tbody.loading {
+    opacity: 0.6;
+}

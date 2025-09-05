@@ -1,0 +1,169 @@
+<template>
+    <lightning-card if:true={showCard} title="Add New Library Item" icon-name="action:new">
+        <div class="slds-card__body slds-card__body_inner">
+            <!-- Loading Spinner -->
+            <template if:true={isLoading}>
+                <lightning-spinner alternative-text="Creating item..." size="small"></lightning-spinner>
+            </template>
+            
+            <!-- Add Item Form -->
+            <div class="new-item-form slds-grid slds-wrap slds-gutters">
+                <!-- First Row -->
+                <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                    <lightning-input 
+                        type="text"
+                        label="Item Name"
+                        value={itemName}
+                        data-field="itemName"
+                        onchange={handleInputChange}
+                        required
+                        placeholder="Enter item name">
+                    </lightning-input>
+                </div>
+                
+                <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                    <lightning-combobox
+                        label="Item Type"
+                        value={itemType}
+                        options={itemTypeOptions}
+                        data-field="itemType"
+                        onchange={handleInputChange}
+                        required
+                        placeholder="Select item type">
+                    </lightning-combobox>
+                </div>
+                
+                <!-- Second Row -->
+                <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                    <lightning-combobox
+                        label="Category"
+                        value={category}
+                        options={categoryOptions}
+                        data-field="category"
+                        onchange={handleInputChange}
+                        placeholder="Select category">
+                    </lightning-combobox>
+                </div>
+                
+                <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                    <lightning-input 
+                        type="text"
+                        label="Author / Manufacturer"
+                        value={authorManufacturer}
+                        data-field="authorManufacturer"
+                        onchange={handleInputChange}
+                        placeholder="Enter author or manufacturer">
+                    </lightning-input>
+                </div>
+                
+                <!-- Third Row -->
+                <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                    <lightning-input 
+                        type="text"
+                        label="ISBN / Serial Number"
+                        value={isbnSerial}
+                        data-field="isbnSerial"
+                        onchange={handleInputChange}
+                        placeholder="Enter ISBN or serial number">
+                    </lightning-input>
+                </div>
+                
+                <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                    <lightning-input 
+                        type="text"
+                        label="Location"
+                        value={location}
+                        data-field="location"
+                        onchange={handleInputChange}
+                        placeholder="Enter shelf location">
+                    </lightning-input>
+                </div>
+                
+                <!-- Fourth Row -->
+                <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                    <lightning-combobox
+                        label="Condition"
+                        value={condition}
+                        options={conditionOptions}
+                        data-field="condition"
+                        onchange={handleInputChange}
+                        required>
+                    </lightning-combobox>
+                </div>
+                
+                <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                    <lightning-input 
+                        type="date"
+                        label="Purchase Date"
+                        value={purchaseDate}
+                        data-field="purchaseDate"
+                        onchange={handleInputChange}
+                        placeholder="Select purchase date">
+                    </lightning-input>
+                </div>
+                
+                <!-- Notes Row -->
+                <div class="slds-col slds-size_1-of-1">
+                    <lightning-textarea 
+                        label="Notes"
+                        value={notes}
+                        data-field="notes"
+                        onchange={handleInputChange}
+                        placeholder="Enter any additional notes"
+                        max-length="500">
+                    </lightning-textarea>
+                </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="slds-m-top_large slds-text-align_right">
+                <lightning-button 
+                    variant="neutral" 
+                    label="Clear Form"
+                    onclick={handleClear}
+                    disabled={isLoading}>
+                </lightning-button>
+                
+                <lightning-button 
+                    variant="brand" 
+                    label="Add Item"
+                    onclick={handleSave}
+                    disabled={isLoading}
+                    class="slds-m-left_x-small">
+                </lightning-button>
+            </div>
+        </div>
+        
+        <!-- Success Message -->
+        <template if:true={showSuccess}>
+            <div class="slds-notify slds-notify_alert slds-alert_success slds-m-top_medium" role="alert">
+                <span class="slds-assistive-text">Success</span>
+                <h2>
+                    <lightning-icon 
+                        icon-name="utility:success" 
+                        alternative-text="Success" 
+                        size="x-small" 
+                        class="slds-m-right_x-small">
+                    </lightning-icon>
+                    Item created successfully! Barcode: {createdItemBarcode}
+                </h2>
+            </div>
+        </template>
+        
+        <!-- Error Message -->
+        <template if:true={showError}>
+            <div class="slds-notify slds-notify_alert slds-alert_error slds-m-top_medium" role="alert">
+                <span class="slds-assistive-text">Error</span>
+                <h2>
+                    <lightning-icon 
+                        icon-name="utility:error" 
+                        alternative-text="Error" 
+                        size="x-small" 
+                        class="slds-m-right_x-small">
+                    </lightning-icon>
+                    {errorMessage}
+                </h2>
+            </div>
+        </template>
+    </lightning-card>
+</template>

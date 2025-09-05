@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Borrower__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Who borrowed it - user lookup</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Who borrowed it</inlineHelpText>
+    <label>Borrower</label>
+    <referenceTo>User</referenceTo>
+    <relationshipName>Borrowing_Records1</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

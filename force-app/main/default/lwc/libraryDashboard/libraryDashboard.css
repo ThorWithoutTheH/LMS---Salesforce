@@ -1,0 +1,142 @@
+/* Library Dashboard CSS */
+
+/* Tile animations */
+.slds-tile_board {
+    transition: transform 0.2s ease;
+}
+
+.slds-tile_board:hover {
+    transform: scale(1.02);
+}
+
+/* Card animations */
+.slds-card {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Progress Bar Width Classes - Using data-width attribute */
+.slds-progress-bar__value[data-width="0"] { width: 0%; }
+.slds-progress-bar__value[data-width="5"] { width: 5%; }
+.slds-progress-bar__value[data-width="10"] { width: 10%; }
+.slds-progress-bar__value[data-width="15"] { width: 15%; }
+.slds-progress-bar__value[data-width="20"] { width: 20%; }
+.slds-progress-bar__value[data-width="25"] { width: 25%; }
+.slds-progress-bar__value[data-width="30"] { width: 30%; }
+.slds-progress-bar__value[data-width="35"] { width: 35%; }
+.slds-progress-bar__value[data-width="40"] { width: 40%; }
+.slds-progress-bar__value[data-width="45"] { width: 45%; }
+.slds-progress-bar__value[data-width="50"] { width: 50%; }
+.slds-progress-bar__value[data-width="55"] { width: 55%; }
+.slds-progress-bar__value[data-width="60"] { width: 60%; }
+.slds-progress-bar__value[data-width="65"] { width: 65%; }
+.slds-progress-bar__value[data-width="70"] { width: 70%; }
+.slds-progress-bar__value[data-width="75"] { width: 75%; }
+.slds-progress-bar__value[data-width="80"] { width: 80%; }
+.slds-progress-bar__value[data-width="85"] { width: 85%; }
+.slds-progress-bar__value[data-width="90"] { width: 90%; }
+.slds-progress-bar__value[data-width="95"] { width: 95%; }
+.slds-progress-bar__value[data-width="100"] { width: 100%; }
+
+/* Default progress bar styling */
+.slds-progress-bar__value {
+    background-color: #1589ee;
+    transition: width 0.5s ease;
+    height: 100%;
+}
+
+/* Trend Bar Height Classes - Using data-height attribute */
+.trend-bar[data-height="0"] { height: 0%; }
+.trend-bar[data-height="5"] { height: 5%; }
+.trend-bar[data-height="10"] { height: 10%; }
+.trend-bar[data-height="15"] { height: 15%; }
+.trend-bar[data-height="20"] { height: 20%; }
+.trend-bar[data-height="25"] { height: 25%; }
+.trend-bar[data-height="30"] { height: 30%; }
+.trend-bar[data-height="35"] { height: 35%; }
+.trend-bar[data-height="40"] { height: 40%; }
+.trend-bar[data-height="45"] { height: 45%; }
+.trend-bar[data-height="50"] { height: 50%; }
+.trend-bar[data-height="55"] { height: 55%; }
+.trend-bar[data-height="60"] { height: 60%; }
+.trend-bar[data-height="65"] { height: 65%; }
+.trend-bar[data-height="70"] { height: 70%; }
+.trend-bar[data-height="75"] { height: 75%; }
+.trend-bar[data-height="80"] { height: 80%; }
+.trend-bar[data-height="85"] { height: 85%; }
+.trend-bar[data-height="90"] { height: 90%; }
+.trend-bar[data-height="95"] { height: 95%; }
+.trend-bar[data-height="100"] { height: 100%; }
+
+/* Default trend bar styling */
+.trend-bar {
+    background: linear-gradient(to top, #1589ee, #4bca81);
+    border-radius: 2px 2px 0 0;
+    position: relative;
+    transition: all 0.3s ease;
+    min-height: 2px;
+    width: 100%;
+}
+
+.trend-bar:hover {
+    opacity: 0.8;
+    transform: scaleY(1.05);
+    cursor: pointer;
+}
+
+/* Scrollable area for tables */
+.slds-scrollable_y {
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Table hover effects */
+.slds-table tbody tr:hover {
+    background-color: #f3f2f2;
+}
+
+/* Loading spinner centering */
+.slds-align_absolute-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+}
+
+/* Badge variants for better visibility */
+lightning-badge {
+    margin: 0 2px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .slds-grid {
+        flex-direction: column;
+    }
+    
+    .slds-col {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+}
+
+/* Additional utility classes */
+.slds-theme_warning {
+    background-color: #fff7e6;
+    border: 1px solid #ff9a3c;
+}
+
+.slds-theme_error {
+    background-color: #fef5f1;
+    border: 1px solid #c23934;
+}

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>VR_Required_Fields_For_Checkout</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(
+    TEXT(Status__c) = &apos;Checked Out&apos;,
+    OR(
+        ISBLANK(Borrower__c),
+        ISBLANK(Library_Item__c),
+        ISBLANK(Checkout_Date__c)
+    )
+)</errorConditionFormula>
+    <errorMessage>Borrower, Library Item, and Checkout Date are required for Checked Out items</errorMessage>
+</ValidationRule>

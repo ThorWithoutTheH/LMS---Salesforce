@@ -1,0 +1,170 @@
+<template>
+    <lightning-card title="Rapid Barcode Scanner" icon-name="utility:scan">
+        <div slot="actions">
+            <lightning-button-group>
+                <lightning-button
+                    label="Checkout Mode"
+                    variant={isCheckoutMode}
+                    onclick={setCheckoutMode}>
+                </lightning-button>
+                <lightning-button
+                    label="Return Mode"
+                    variant={isReturnMode}
+                    onclick={setReturnMode}>
+                </lightning-button>
+            </lightning-button-group>
+        </div>
+        
+        <div class="slds-var-p-horizontal_medium">
+            <!-- Status Banner -->
+            <div class="mode-indicator slds-box slds-theme_shade slds-var-m-bottom_medium">
+                <div class="slds-grid slds-grid_align-spread">
+                    <div class="slds-col">
+                        <h2 class="slds-text-heading_medium">
+                            Mode: <strong>{currentModeLabel}</strong>
+                        </h2>
+                        <p class="slds-text-body_regular slds-text-color_weak">
+                            Scan continuously - no clicks needed
+                        </p>
+                    </div>
+                    <div class="slds-col slds-text-align_right">
+                        <div class="slds-text-heading_large">{sessionCount}</div>
+                        <div class="slds-text-body_small">Items Processed</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Single Input Field - Always Focused -->
+            <div class="scanner-input-container slds-var-m-bottom_large">
+                <div class="slds-form-element">
+                    <label class="slds-form-element__label slds-text-title_caps" for="barcode-input">
+                        Scanning Active
+                    </label>
+                    <div class="slds-form-element__control">
+                        <input
+                            type="text"
+                            id="barcode-input"
+                            class="slds-input slds-input_bare scanner-input"
+                            placeholder="Ready for scan..."
+                            value={currentBarcode}
+                            onkeyup={handleBarcodeInput}
+                            oninput={handleInputChange}
+                            autofocus
+                            autocomplete="off"
+                            autocorrect="off"
+                            autocapitalize="off"
+                            spellcheck="false">
+                    </div>
+                </div>
+                
+                <!-- Visual Feedback Bar -->
+                <div class="feedback-bar">
+                    <template if:true={isProcessing}>
+                        <div class="processing-indicator"></div>
+                    </template>
+                    <template if:true={lastScanSuccess}>
+                        <div class="success-indicator"></div>
+                    </template>
+                    <template if:true={lastScanError}>
+                        <div class="error-indicator"></div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Last Scan Result - Large Display -->
+            <template if:true={lastResult}>
+                <div class={lastResultClass}>
+                    <div class="slds-grid slds-grid_vertical-align-center">
+                        <div class="slds-col slds-size_1-of-12">
+                            <lightning-icon 
+                                icon-name={lastResultIcon}
+                                size="large"
+                                variant={lastResultVariant}>
+                            </lightning-icon>
+                        </div>
+                        <div class="slds-col slds-size_11-of-12">
+                            <h3 class="slds-text-heading_medium">{lastResult.itemName}</h3>
+                            <p class="slds-text-body_regular">{lastResult.message}</p>
+                            <p class="slds-text-body_small slds-text-color_weak">
+                                Barcode: {lastResult.barcode} | {lastResult.timestamp}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Processing Queue (for visual feedback during rapid scanning) -->
+            <template if:true={hasQueue}>
+                <div class="slds-box slds-theme_shade slds-var-m-top_medium">
+                    <h3 class="slds-text-body_small slds-text-title_caps">Processing Queue</h3>
+                    <div class="queue-items">
+                        <template for:each={processingQueue} for:item="item">
+                            <span key={item.id} class="queue-badge">
+                                {item.barcode}
+                            </span>
+                        </template>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Session Summary -->
+            <div class="slds-grid slds-gutters slds-var-m-top_large">
+                <div class="slds-col">
+                    <div class="slds-box slds-box_x-small">
+                        <div class="slds-text-align_center">
+                            <div class="slds-text-heading_medium slds-text-color_success">
+                                {successCount}
+                            </div>
+                            <div class="slds-text-body_small">Successful</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-col">
+                    <div class="slds-box slds-box_x-small">
+                        <div class="slds-text-align_center">
+                            <div class="slds-text-heading_medium slds-text-color_error">
+                                {errorCount}
+                            </div>
+                            <div class="slds-text-body_small">Errors</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-col">
+                    <div class="slds-box slds-box_x-small">
+                        <div class="slds-text-align_center">
+                            <div class="slds-text-heading_medium">
+                                {scanRate}
+                            </div>
+                            <div class="slds-text-body_small">Items/Min</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent History (Compact) -->
+            <template if:true={hasHistory}>
+                <div class="slds-var-m-top_medium">
+                    <details open>
+                        <summary class="slds-text-body_small slds-text-title_caps">
+                            Recent Scans
+                        </summary>
+                        <div class="history-list slds-var-m-top_x-small">
+                            <template for:each={recentHistory} for:item="item">
+                                <div key={item.id} class="history-item">
+                                    <lightning-icon 
+                                        icon-name={item.iconName}
+                                        size="x-small"
+                                        variant={item.variant}>
+                                    </lightning-icon>
+                                    <span class="slds-var-m-left_x-small">
+                                        {item.barcode} - {item.itemName} ({item.time})
+                                    </span>
+                                </div>
+                            </template>
+                        </div>
+                    </details>
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+</template>

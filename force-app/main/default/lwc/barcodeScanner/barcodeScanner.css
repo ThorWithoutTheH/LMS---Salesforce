@@ -1,0 +1,145 @@
+/* Scanner Input - Large and Always Visible */
+.scanner-input {
+    font-size: 1.5rem !important;
+    font-family: monospace;
+    letter-spacing: 0.1em;
+    text-align: center;
+    padding: 1rem !important;
+    border: 2px solid #0070d2;
+    background-color: #f3f2f2;
+}
+
+.scanner-input:focus {
+    background-color: #fff;
+    border-color: #1589ee;
+    box-shadow: 0 0 3px #0070d2;
+}
+
+/* Feedback Bar */
+.feedback-bar {
+    height: 4px;
+    margin-top: 2px;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.processing-indicator {
+    height: 100%;
+    background: linear-gradient(90deg, #0070d2 0%, #1589ee 50%, #0070d2 100%);
+    animation: slide 1s linear infinite;
+}
+
+.success-indicator {
+    height: 100%;
+    background-color: #4bca81;
+    animation: flash 0.5s ease-out;
+}
+
+.error-indicator {
+    height: 100%;
+    background-color: #c23934;
+    animation: flash 0.5s ease-out 2;
+}
+
+@keyframes slide {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+@keyframes flash {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* Mode Indicator */
+.mode-indicator {
+    border-left: 4px solid #0070d2;
+}
+
+/* Last Result Display */
+.last-result {
+    font-size: 1.1rem;
+    padding: 1rem;
+    transition: all 0.3s ease;
+    animation: slideIn 0.3s ease-out;
+}
+
+.last-result.slds-theme_success {
+    background-color: #f0f8f4;
+    border: 1px solid #4bca81;
+}
+
+.last-result.slds-theme_error {
+    background-color: #fef5f1;
+    border: 1px solid #c23934;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Queue Badges */
+.queue-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+}
+
+.queue-badge {
+    padding: 0.25rem 0.5rem;
+    background-color: #0070d2;
+    color: white;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.875rem;
+    animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+/* History Items */
+.history-list {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.history-item {
+    padding: 0.25rem 0;
+    border-bottom: 1px solid #e5e5e5;
+    font-size: 0.875rem;
+}
+
+/* Hide scrollbars but keep functionality */
+.history-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 2px;
+}
+
+/* Focus trap - prevent focus leaving the input */
+.scanner-input-container {
+    position: relative;
+    isolation: isolate;
+}
+
+/* High contrast for visibility */
+@media (prefers-contrast: high) {
+    .scanner-input {
+        font-size: 1.75rem !important;
+        border-width: 3px;
+    }
+}

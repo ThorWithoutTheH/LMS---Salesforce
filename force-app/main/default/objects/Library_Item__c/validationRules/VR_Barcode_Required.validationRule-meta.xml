@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>VR_Barcode_Required</fullName>
+    <active>true</active>
+    <errorConditionFormula>ISBLANK(Barcode__c)</errorConditionFormula>
+    <errorDisplayField>Barcode__c</errorDisplayField>
+    <errorMessage>Barcode is required for all library items</errorMessage>
+</ValidationRule>

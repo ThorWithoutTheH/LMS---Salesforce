@@ -1,0 +1,361 @@
+<template>
+    <lightning-card title="Library Dashboard" icon-name="standard:dashboard">
+        <div slot="actions">
+            <lightning-button-icon
+                icon-name="utility:refresh"
+                alternative-text="Refresh"
+                title="Refresh Dashboard"
+                onclick={refreshDashboard}>
+            </lightning-button-icon>
+        </div>
+        
+        <!-- Loading State -->
+        <template if:true={isLoading}>
+            <div class="slds-align_absolute-center slds-p-around_large">
+                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            </div>
+        </template>
+        
+        <!-- Dashboard Content -->
+        <template if:false={isLoading}>
+            <div class="slds-var-p-horizontal_medium">
+                
+                <!-- Key Metrics Row -->
+                <div class="slds-grid slds-gutters slds-var-m-bottom_medium">
+                    <div class="slds-col slds-size_1-of-4">
+                        <article class="slds-tile slds-tile_board">
+                            <div class="slds-tile__detail">
+                                <div class="slds-text-align_center">
+                                    <div class="slds-text-heading_large slds-text-color_success">
+                                        {itemStats.availableCount}
+                                    </div>
+                                    <div class="slds-text-title">Available Items</div>
+                                    <div class="slds-text-body_small slds-text-color_weak">
+                                        {itemStats.availablePercentage}% of total
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                    <div class="slds-col slds-size_1-of-4">
+                        <article class="slds-tile slds-tile_board">
+                            <div class="slds-tile__detail">
+                                <div class="slds-text-align_center">
+                                    <div class="slds-text-heading_large">
+                                        {itemStats.checkedOutCount}
+                                    </div>
+                                    <div class="slds-text-title">Checked Out</div>
+                                    <div class="slds-text-body_small slds-text-color_weak">
+                                        {itemStats.checkedOutPercentage}% of total
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                    <div class="slds-col slds-size_1-of-4">
+                        <article class="slds-tile slds-tile_board">
+                            <div class="slds-tile__detail">
+                                <div class="slds-text-align_center">
+                                    <div class="slds-text-heading_large slds-text-color_error">
+                                        {itemStats.overdueCount}
+                                    </div>
+                                    <div class="slds-text-title">Overdue</div>
+                                    <div class="slds-text-body_small slds-text-color_weak">
+                                        Needs attention
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                    <div class="slds-col slds-size_1-of-4">
+                        <article class="slds-tile slds-tile_board">
+                            <div class="slds-tile__detail">
+                                <div class="slds-text-align_center">
+                                    <div class="slds-text-heading_large">
+                                        {itemStats.totalCount}
+                                    </div>
+                                    <div class="slds-text-title">Total Items</div>
+                                    <div class="slds-text-body_small slds-text-color_weak">
+                                        In library
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+                
+                <!-- Visual Charts Row -->
+                <div class="slds-grid slds-gutters slds-var-m-bottom_medium">
+                    <!-- Item Type Distribution - Using simple bars -->
+                    <div class="slds-col slds-size_1-of-2">
+                        <article class="slds-card">
+                            <div class="slds-card__header">
+                                <h2 class="slds-card__header-title">
+                                    Item Distribution by Type
+                                </h2>
+                            </div>
+                            <div class="slds-card__body slds-card__body_inner">
+                                <template if:true={hasItemTypeData}>
+                                    <div class="slds-p-around_small">
+                                        <template for:each={itemTypeBarData} for:item="item">
+                                            <div key={item.itemType} class="slds-m-bottom_small">
+                                                <div class="slds-grid slds-grid_align-spread slds-m-bottom_xx-small">
+                                                    <span class="slds-text-body_small slds-text-color_weak">{item.itemType}</span>
+                                                    <span class="slds-text-body_small"><strong>{item.totalCount}</strong></span>
+                                                </div>
+                                                <div class="slds-progress-bar slds-progress-bar_small">
+                                                    <span class="slds-progress-bar__value" data-width={item.percentage}>
+                                                        <span class="slds-assistive-text">{item.percentage}%</span>
+                                                    </span>
+                                                </div>
+                                                <div class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small">
+                                                    Available: {item.availableCount} | Checked Out: {item.checkedOutCount}
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
+                                <template if:false={hasItemTypeData}>
+                                    <div class="slds-align_absolute-center slds-p-around_medium">
+                                        <p class="slds-text-color_weak">No item data available</p>
+                                    </div>
+                                </template>
+                            </div>
+                        </article>
+                    </div>
+                    
+                    <!-- Borrowing Trends - Using sparkline visualization -->
+                    <div class="slds-col slds-size_1-of-2">
+                        <article class="slds-card">
+                            <div class="slds-card__header">
+                                <h2 class="slds-card__header-title">
+                                    Borrowing Trends (30 Days)
+                                </h2>
+                            </div>
+                            <div class="slds-card__body slds-card__body_inner">
+                                <template if:true={hasTrendData}>
+                                    <div class="slds-p-around_small">
+                                        <div style="position: relative; height: 200px;">
+                                            <!-- Simple bar visualization -->
+                                            <div class="slds-grid" style="height: 100%; align-items: flex-end;">
+                                                <template for:each={trendSparklineData} for:item="trend">
+                                                    <div key={trend.date} class="slds-col" style="flex: 1; padding: 0 2px;">
+                                                        <div data-height={trend.heightPercentage}
+                                                             class="trend-bar"
+                                                             title={trend.tooltipText}>
+                                                            <span class="slds-assistive-text">{trend.count}</span>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                            <!-- X-axis labels -->
+                                            <div class="slds-m-top_x-small slds-text-align_center">
+                                                <span class="slds-text-body_small slds-text-color_weak">Daily Checkout Activity</span>
+                                            </div>
+                                        </div>
+                                        <!-- Summary Stats -->
+                                        <div class="slds-grid slds-m-top_small">
+                                            <div class="slds-col slds-text-align_center">
+                                                <div class="slds-text-body_small slds-text-color_weak">Period</div>
+                                                <div class="slds-text-body_regular">Last 30 Days</div>
+                                            </div>
+                                            <div class="slds-col slds-text-align_center">
+                                                <div class="slds-text-body_small slds-text-color_weak">Total Checkouts</div>
+                                                <div class="slds-text-body_regular">{totalCheckouts}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template if:false={hasTrendData}>
+                                    <div class="slds-align_absolute-center slds-p-around_medium">
+                                        <p class="slds-text-color_weak">No trend data available</p>
+                                    </div>
+                                </template>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+                
+                <!-- Tables Row -->
+                <div class="slds-grid slds-gutters slds-var-m-bottom_medium">
+                    <!-- Most Popular Items -->
+                    <div class="slds-col slds-size_1-of-2">
+                        <article class="slds-card">
+                            <div class="slds-card__header">
+                                <h2 class="slds-card__header-title">
+                                    Most Popular Items (30 Days)
+                                </h2>
+                            </div>
+                            <div class="slds-card__body">
+                                <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Item Name</th>
+                                            <th>Type</th>
+                                            <th>Times Borrowed</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={popularItems} for:item="item">
+                                            <tr key={item.barcode}>
+                                                <td>{item.itemName}</td>
+                                                <td>{item.itemType}</td>
+                                                <td>
+                                                    <lightning-badge label={item.borrowCount} variant="success"></lightning-badge>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                        <template if:false={hasPopularItems}>
+                                            <tr>
+                                                <td colspan="3" class="slds-text-align_center slds-text-color_weak">
+                                                    No borrowing data available
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </article>
+                    </div>
+                    
+                    <!-- Top Borrowers -->
+                    <div class="slds-col slds-size_1-of-2">
+                        <article class="slds-card">
+                            <div class="slds-card__header">
+                                <h2 class="slds-card__header-title">
+                                    Most Frequent Borrowers (30 Days)
+                                </h2>
+                            </div>
+                            <div class="slds-card__body">
+                                <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Borrower</th>
+                                            <th>Items Borrowed</th>
+                                            <th>Unique Items</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={topBorrowers} for:item="borrower">
+                                            <tr key={borrower.borrowerName}>
+                                                <td>{borrower.borrowerName}</td>
+                                                <td>
+                                                    <lightning-badge label={borrower.borrowCount} variant="inverse"></lightning-badge>
+                                                </td>
+                                                <td>{borrower.uniqueItemCount}</td>
+                                            </tr>
+                                        </template>
+                                        <template if:false={hasTopBorrowers}>
+                                            <tr>
+                                                <td colspan="3" class="slds-text-align_center slds-text-color_weak">
+                                                    No borrower data available
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+                
+                <!-- Overdue Summary -->
+                <template if:true={hasOverdueItems}>
+                    <div class="slds-var-m-bottom_medium">
+                        <article class="slds-card">
+                            <div class="slds-card__header">
+                                <h2 class="slds-card__header-title">
+                                    Overdue Summary
+                                </h2>
+                            </div>
+                            <div class="slds-card__body">
+                                <div class="slds-grid slds-gutters">
+                                    <div class="slds-col">
+                                        <div class="slds-box slds-theme_warning">
+                                            <div class="slds-text-align_center">
+                                                <div class="slds-text-heading_medium">{overdueStats.overdue1Week}</div>
+                                                <div class="slds-text-body_small">1-7 Days Overdue</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-col">
+                                        <div class="slds-box slds-theme_warning">
+                                            <div class="slds-text-align_center">
+                                                <div class="slds-text-heading_medium">{overdueStats.overdue2Weeks}</div>
+                                                <div class="slds-text-body_small">8-14 Days Overdue</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-col">
+                                        <div class="slds-box slds-theme_error">
+                                            <div class="slds-text-align_center">
+                                                <div class="slds-text-heading_medium">{overdueStats.overdueMoreThan2Weeks}</div>
+                                                <div class="slds-text-body_small">&gt;14 Days Overdue</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </template>
+                
+                <!-- Recent Activity -->
+                <div>
+                    <article class="slds-card">
+                        <div class="slds-card__header">
+                            <h2 class="slds-card__header-title">
+                                Recent Activity
+                            </h2>
+                        </div>
+                        <div class="slds-card__body">
+                            <div class="slds-scrollable_y" style="max-height: 200px;">
+                                <table class="slds-table slds-table_cell-buffer">
+                                    <thead>
+                                        <tr>
+                                            <th>Time</th>
+                                            <th>Action</th>
+                                            <th>Item</th>
+                                            <th>User</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={recentActivity} for:item="activity">
+                                            <tr key={activity.actionDate}>
+                                                <td>
+                                                    <lightning-formatted-date-time 
+                                                        value={activity.actionDate}
+                                                        year="2-digit"
+                                                        month="short"
+                                                        day="2-digit"
+                                                        hour="2-digit"
+                                                        minute="2-digit">
+                                                    </lightning-formatted-date-time>
+                                                </td>
+                                                <td>
+                                                    <lightning-badge 
+                                                        label={activity.actionType}
+                                                        variant={activity.badgeVariant}>
+                                                    </lightning-badge>
+                                                </td>
+                                                <td>{activity.itemName}</td>
+                                                <td>{activity.borrowerName}</td>
+                                            </tr>
+                                        </template>
+                                        <template if:false={hasRecentActivity}>
+                                            <tr>
+                                                <td colspan="4" class="slds-text-align_center slds-text-color_weak">
+                                                    No recent activity
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </template>
+    </lightning-card>
+</template>

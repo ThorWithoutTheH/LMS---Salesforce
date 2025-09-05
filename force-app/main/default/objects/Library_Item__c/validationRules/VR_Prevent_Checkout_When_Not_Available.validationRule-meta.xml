@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>VR_Prevent_Checkout_When_Not_Available</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(
+    NOT(ISBLANK(Current_Borrower__c)),
+    ISCHANGED(Current_Borrower__c),
+    TEXT(Current_Status__c) != &apos;Checked Out&apos;
+)</errorConditionFormula>
+    <errorMessage>Item must be Available to be Checked Out</errorMessage>
+</ValidationRule>

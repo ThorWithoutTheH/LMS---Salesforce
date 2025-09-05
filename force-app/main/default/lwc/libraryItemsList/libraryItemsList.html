@@ -1,0 +1,481 @@
+<template>
+    <lightning-card title="Library Items" icon-name="custom:custom63">
+        <div class="slds-card__body slds-card__body_inner">
+            <!-- Search and Filter Section -->
+            <div class="slds-grid slds-gutters slds-wrap slds-m-bottom_medium">
+                <!-- Search Box -->
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                    <lightning-input
+                        type="search"
+                        label="Search Items"
+                        placeholder="Search by name, author, or barcode..."
+                        value={searchTerm}
+                        onchange={handleSearchChange}>
+                    </lightning-input>
+                </div>
+
+                <!-- Item Type Filter -->
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                    <lightning-combobox
+                        label="Filter by Type"
+                        value={selectedItemType}
+                        options={itemTypeFilterOptions}
+                        onchange={handleItemTypeFilter}
+                        placeholder="All Item Types">
+                    </lightning-combobox>
+                </div>
+
+                <!-- Status Filter -->
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                    <lightning-combobox
+                        label="Filter by Status"
+                        value={selectedStatus}
+                        options={statusFilterOptions}
+                        onchange={handleStatusFilter}
+                        placeholder="All Statuses">
+                    </lightning-combobox>
+                </div>
+            </div>
+
+            <!-- Loading Spinner -->
+            <template if:true={isLoading}>
+                <div class="slds-text-align_center slds-m-vertical_large">
+                    <lightning-spinner alternative-text="Loading items..." size="small"></lightning-spinner>
+                </div>
+            </template>
+
+            <!-- Error Message -->
+            <template if:true={error}>
+                <div class="slds-notify slds-notify_alert slds-alert_error slds-m-bottom_medium">
+                    <span class="slds-assistive-text">Error</span>
+                    <h2>
+                        <lightning-icon icon-name="utility:error" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                        Error loading library items: {error}
+                    </h2>
+                </div>
+            </template>
+
+            <!-- Top Pagination Controls -->
+            <template if:true={showPagination}>
+                <div class="slds-grid slds-grid_align-spread slds-m-bottom_medium">
+                    <div class="slds-col">
+                        <div class="slds-grid slds-grid_vertical-align-center">
+                            <span class="slds-m-right_small">{paginationInfo}</span>
+                            <div class="slds-grid slds-grid_vertical-align-center">
+                                <span class="slds-m-right_x-small">Show:</span>
+                                <lightning-combobox
+                                    variant="label-hidden"
+                                    value={pageSize}
+                                    options={pageSizeOptions}
+                                    onchange={handlePageSizeChange}
+                                    class="page-size-selector">
+                                </lightning-combobox>
+                                <span class="slds-m-left_x-small">per page</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-no-flex">
+                        <div class="slds-button-group" role="group">
+                            <lightning-button
+                                variant="neutral"
+                                label="First"
+                                icon-name="utility:chevronleft"
+                                disabled={disablePreviousPage}
+                                onclick={handleFirstPage}>
+                            </lightning-button>
+                            <lightning-button
+                                variant="neutral"
+                                label="Previous"
+                                icon-name="utility:left"
+                                disabled={disablePreviousPage}
+                                onclick={handlePreviousPage}>
+                            </lightning-button>
+                            <lightning-button
+                                variant="neutral"
+                                label="Next"
+                                icon-name="utility:right"
+                                icon-position="right"
+                                onclick={handleNextPage}>
+                            </lightning-button>
+                            <lightning-button
+                                variant="neutral"
+                                label="Last"
+                                icon-name="utility:chevronright"
+                                icon-position="right"
+                                onclick={handleLastPage}>
+                            </lightning-button>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Items Count and Refresh Button -->
+            <template if:true={hasItems}>
+                <div class="slds-text-body_small slds-text-color_weak slds-m-bottom_small">
+                    Showing {displayedItems.length} of {filteredItems.length} items
+                    <template if:true={hasActiveFilters}>
+                        (filtered from {totalItems} total)
+                    </template>
+                    <lightning-button 
+                        variant="neutral" 
+                        label="Refresh" 
+                        onclick={refreshData} 
+                        class="slds-float_right">
+                    </lightning-button>
+                </div>
+            </template>
+
+            <!-- Items Table -->
+            <template if:true={hasItems}>
+                <div class="slds-scrollable_x">
+                    <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped">
+                        <thead>
+                            <tr class="slds-line-height_reset">
+                                <th scope="col" class="slds-text-title_caps">
+                                    <button class="slds-button slds-button_reset" onclick={sortByName}>
+                                        Item Name
+                                        <lightning-icon 
+                                            if:true={sortedByName} 
+                                            icon-name={nameSortIcon} 
+                                            size="xx-small" 
+                                            class="slds-m-left_xx-small">
+                                        </lightning-icon>
+                                    </button>
+                                </th>
+                                <th scope="col" class="slds-text-title_caps">Type</th>
+                                <th scope="col" class="slds-text-title_caps">Category</th>
+                                <th scope="col" class="slds-text-title_caps">Author/Manufacturer</th>
+                                <th scope="col" class="slds-text-title_caps">Barcode</th>
+                                <th scope="col" class="slds-text-title_caps">Status</th>
+                                <th scope="col" class="slds-text-title_caps">Current Borrower</th>
+                                <th scope="col" class="slds-text-title_caps">Location</th>
+                                <th scope="col" class="slds-text-title_caps">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={displayedItems} for:item="item">
+                                <tr key={item.Id}>
+                                    <!-- Item Name -->
+                                    <td data-label="Item Name">
+                                        <div class="slds-truncate">
+                                            <strong>{item.Item_Name__c}</strong>
+                                        </div>
+                                    </td>
+
+                                    <!-- Item Type -->
+                                    <td data-label="Type">
+                                        <lightning-badge label={item.Item_Type__c} class="type-badge"></lightning-badge>
+                                    </td>
+
+                                    <!-- Category -->
+                                    <td data-label="Category">
+                                        <div class="slds-truncate">{item.Category__c}</div>
+                                    </td>
+
+                                    <!-- Author/Manufacturer -->
+                                    <td data-label="Author/Manufacturer">
+                                        <div class="slds-truncate">{item.Author_Manufacturer__c}</div>
+                                    </td>
+
+                                    <!-- Barcode -->
+                                    <td data-label="Barcode">
+                                        <div class="barcode-text">{item.Barcode__c}</div>
+                                    </td>
+
+                                    <!-- Status -->
+                                    <td data-label="Status">
+                                        <lightning-badge 
+                                            label={item.Current_Status__c}
+                                            class={item.statusClass}>
+                                        </lightning-badge>
+                                    </td>
+
+                                    <!-- Current Borrower -->
+                                    <td data-label="Current Borrower">
+                                        <template if:true={item.Current_Borrower__r}>
+                                            <div class="slds-truncate">
+                                                {item.Current_Borrower__r.Name}
+                                            </div>
+                                        </template>
+                                        <template if:false={item.Current_Borrower__r}>
+                                            <span class="slds-text-color_weak">-</span>
+                                        </template>
+                                    </td>
+
+                                    <!-- Location -->
+                                    <td data-label="Location">
+                                        <div class="slds-truncate">{item.Location__c}</div>
+                                    </td>
+
+                                    <!-- Actions -->
+                                    <td data-label="Actions">
+                                        <lightning-button-menu 
+                                            alternative-text="Show menu" 
+                                            icon-size="x-small"
+                                            menu-alignment="right"
+                                            disabled={isProcessing}>
+                                            
+                                            <lightning-menu-item 
+                                                value="view" 
+                                                label="View Details"
+                                                onclick={handleItemAction}
+                                                data-item-id={item.Id}>
+                                            </lightning-menu-item>
+                                            
+                                            <lightning-menu-item 
+                                                value="edit" 
+                                                label="Edit Item"
+                                                onclick={handleItemAction}
+                                                data-item-id={item.Id}>
+                                            </lightning-menu-item>
+                                            
+                                            <template if:true={item.isAvailable}>
+                                                <lightning-menu-item 
+                                                    value="checkout" 
+                                                    label="Checkout"
+                                                    onclick={handleItemAction}
+                                                    data-item-id={item.Id}>
+                                                </lightning-menu-item>
+                                            </template>
+                                            
+                                            <template if:true={item.isCheckedOut}>
+                                                <lightning-menu-item 
+                                                    value="return" 
+                                                    label="Return Item"
+                                                    onclick={handleItemAction}
+                                                    data-item-id={item.Id}>
+                                                </lightning-menu-item>
+                                                
+                                                <template if:true={item.canRenew}>
+                                                    <lightning-menu-item 
+                                                        value="renew" 
+                                                        label="Renew Item"
+                                                        onclick={handleItemAction}
+                                                        data-item-id={item.Id}>
+                                                    </lightning-menu-item>
+                                                </template>
+                                            </template>
+                                            
+                                            <template if:true={item.isOverdue}>
+                                                <lightning-menu-item 
+                                                    value="return" 
+                                                    label="Return Overdue"
+                                                    onclick={handleItemAction}
+                                                    data-item-id={item.Id}>
+                                                </lightning-menu-item>
+                                                
+                                                <template if:true={item.canRenew}>
+                                                    <lightning-menu-item 
+                                                        value="renew" 
+                                                        label="Renew Overdue"
+                                                        onclick={handleItemAction}
+                                                        data-item-id={item.Id}>
+                                                    </lightning-menu-item>
+                                                </template>
+                                            </template>
+                                        </lightning-button-menu>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </template>
+
+            <!-- Bottom Pagination Controls -->
+            <template if:true={showPagination}>
+                <div class="slds-grid slds-grid_align-center slds-m-top_medium">
+                    <div class="slds-button-group" role="group">
+                        <lightning-button
+                            variant="neutral"
+                            label="First"
+                            icon-name="utility:chevronleft"
+                            disabled={disablePreviousPage}
+                            onclick={handleFirstPage}>
+                        </lightning-button>
+                        <lightning-button
+                            variant="neutral"
+                            label="Previous"
+                            icon-name="utility:left"
+                            disabled={disablePreviousPage}
+                            onclick={handlePreviousPage}>
+                        </lightning-button>
+                        
+                        <!-- Page indicator -->
+                        <div class="slds-align-middle slds-p-horizontal_medium pagination-info">
+                            Page {currentPage} of {totalPages}
+                        </div>
+                        
+                        <lightning-button
+                            variant="neutral"
+                            label="Next"
+                            icon-name="utility:right"
+                            icon-position="right"
+                            disabled={disableNextPage}
+                            onclick={handleNextPage}>
+                        </lightning-button>
+                        <lightning-button
+                            variant="neutral"
+                            label="Last"
+                            icon-name="utility:chevronright"
+                            icon-position="right"
+                            disabled={disableNextPage}
+                            onclick={handleLastPage}>
+                        </lightning-button>
+                    </div>
+                </div>
+            </template>
+
+            <!-- No Items Message -->
+            <template if:false={hasItems}>
+                <template if:false={isLoading}>
+                    <div class="slds-text-align_center slds-m-vertical_large">
+                        <lightning-icon 
+                            icon-name="custom:custom63" 
+                            size="large" 
+                            class="slds-m-bottom_small">
+                        </lightning-icon>
+                        <h3 class="slds-text-heading_medium">No Library Items Found</h3>
+                        <p class="slds-text-body_regular slds-text-color_weak">
+                            <template if:true={hasActiveFilters}>
+                                Try adjusting your search criteria or filters.
+                            </template>
+                            <template if:false={hasActiveFilters}>
+                                Start by adding some library items to your collection.
+                            </template>
+                        </p>
+                        <template if:false={hasActiveFilters}>
+                            <lightning-button 
+                                variant="brand" 
+                                label="Add First Item" 
+                                onclick={handleAddNew}
+                                class="slds-m-top_small">
+                            </lightning-button>
+                        </template>
+                    </div>
+                </template>
+            </template>
+
+            <!-- Statistics Footer -->
+            <template if:true={hasItems}>
+                <div class="slds-border_top slds-m-top_large slds-p-top_medium">
+                    <div class="slds-grid slds-gutters slds-wrap">
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-5">
+                            <div class="stat-item">
+                                <div class="stat-number">{statistics.total}</div>
+                                <div class="stat-label">Total Items</div>
+                            </div>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-5">
+                            <div class="stat-item">
+                                <div class="stat-number available">{statistics.available}</div>
+                                <div class="stat-label">Available</div>
+                            </div>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-5">
+                            <div class="stat-item">
+                                <div class="stat-number checked-out">{statistics.checkedOut}</div>
+                                <div class="stat-label">Checked Out</div>
+                            </div>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-5">
+                            <div class="stat-item">
+                                <div class="stat-number overdue">{statistics.overdue}</div>
+                                <div class="stat-label">Overdue</div>
+                            </div>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-5">
+                            <div class="stat-item">
+                                <div class="stat-number maintenance">{statistics.maintenance}</div>
+                                <div class="stat-label">Maintenance</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+
+    <!-- Checkout Modal -->
+    <template if:true={showCheckoutModal}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" 
+                            onclick={closeCheckoutModal}>
+                        <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium slds-hyphenate">Checkout Item</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <p class="slds-m-bottom_medium">
+                        <strong>Item:</strong> {selectedItem.Item_Name__c}<br/>
+                        <strong>Barcode:</strong> {selectedItem.Barcode__c}<br/>
+                        <strong>Type:</strong> {selectedItem.Item_Type__c}
+                    </p>
+                    
+                    <lightning-input-field 
+                        field-name="Borrower__c" 
+                        value={selectedBorrower}
+                        onchange={handleBorrowerChange}
+                        required="true">
+                    </lightning-input-field>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button 
+                        variant="neutral" 
+                        label="Cancel" 
+                        onclick={closeCheckoutModal}>
+                    </lightning-button>
+                    <lightning-button 
+                        variant="brand" 
+                        label="Checkout" 
+                        onclick={processCheckout}
+                        disabled={isProcessing}>
+                    </lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <!-- Return Modal -->
+    <template if:true={showReturnModal}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" 
+                            onclick={closeReturnModal}>
+                        <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium slds-hyphenate">Return Item</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <p class="slds-m-bottom_medium">
+                        <strong>Item:</strong> {selectedItem.Item_Name__c}<br/>
+                        <strong>Barcode:</strong> {selectedItem.Barcode__c}<br/>
+                        <strong>Current Borrower:</strong> {selectedItem.Current_Borrower__r.Name}
+                    </p>
+                    
+                    <p>Are you sure you want to return this item?</p>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button 
+                        variant="neutral" 
+                        label="Cancel" 
+                        onclick={closeReturnModal}>
+                    </lightning-button>
+                    <lightning-button 
+                        variant="brand" 
+                        label="Return Item" 
+                        onclick={processReturn}
+                        disabled={isProcessing}>
+                    </lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>
