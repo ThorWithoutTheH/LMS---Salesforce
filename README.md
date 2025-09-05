@@ -18,3 +18,5 @@ Salesforce-based library management system with barcode scanning capability.
 - **LibraryItemService**: Manages library items
 - **BorrowingRecordService**: Handles checkout/return logic
 - **barcodeScanner LWC**: UI for scanning interface
+- **addLibraryItem LWC**: UI for add individual inventory item with Notes
+- **libraryDashboard LWC**: UI for Item stats and history
